@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Reminder</title>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card: rgba(15,26,46,.55);
+      --text:#e8eefc;
+      --muted:#a7b3cf;
+      --line: rgba(255,255,255,.10);
+      --radius:18px;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+
+      --danger: rgba(239,68,68,1);
+      --dangerLine: rgba(239,68,68,.35);
+      --dangerBg: rgba(239,68,68,.14);
+
+      --okLine: rgba(34,197,94,.35);
+      --okBg: rgba(34,197,94,.14);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(66,133,244,.18), transparent 55%),
+        radial-gradient(1000px 600px at 90% 20%, rgba(34,197,94,.14), transparent 55%),
+        linear-gradient(180deg,#070b14 0%, #0b1220 65%, #0b1220 100%);
+      color:var(--text);
+      min-height:100dvh;
+      display:grid;
+      place-items:center;
+      padding:18px;
+    }
+
+    /* =========================
+       LOGO SPLASH ONLY
+       ========================= */
+    .logoSplash{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(7, 11, 20, .96);
+      z-index: 9999;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+    .logoSplash.hide{
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+.logoSplash img{
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+/* Mobile size */
+@media (max-width: 420px){
+  .logoSplash img{
+    width: 170px;
+    height: 170px;
+  }
+}
+
+@keyframes breathe{
+  0%{
+    transform: scale(1);
+  }
+  50%{
+    transform: scale(1.06);
+  }
+  100%{
+    transform: scale(1);
+  }
+}
+
+
+    /* =========================
+      POSTER STYLE LANDING PAGE
+      ========================= */
+    .poster{
+      width: min(520px, 94vw);
+      margin: 18px auto;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 22px 70px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.10);
+      background: #0b0f1a;
+
+      /* hidden until splash finishes */
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .poster.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* TOP */
+    .posterTop{
+      background: #07070b;
+      padding: 18px 16px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .brandRow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .brandLogo{
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      object-fit: contain;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 6px;
+    }
+    .brandMeta{ text-align:left; }
+    .brandName{ font-weight: 900; letter-spacing: .3px; color: #fff; font-size: 13px; }
+    .brandSub{ color: rgba(255,255,255,.65); font-size: 12px; margin-top:2px; }
+
+    .bigTitle{
+      margin-top: 10px;
+      font-weight: 1000;
+      letter-spacing: 1.5px;
+      color: #ff2b2b;
+      font-size: 30px;
+      text-transform: uppercase;
+    }
+
+    .bigMsg{
+      margin-top: 10px;
+      color: #ffffff;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .bigMsg b{ letter-spacing: .4px; }
+
+    /* MID */
+    .posterMid{
+      background: #f3d115; /* yellow */
+      padding: 16px;
+      position: relative;
+    }
+
+    .midText{
+      text-align:center;
+      font-weight: 900;
+      color: #131313;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .midText b{ text-transform: uppercase; }
+
+    /* hotline */
+    .hotlineBox{
+      margin: 14px auto 12px;
+      padding: 12px 12px;
+      width: 100%;
+      border-radius: 14px;
+      background: rgba(255,255,255,.35);
+      border: 2px solid rgba(255,0,0,.35);
+      text-align:center;
+    }
+    .hotlineLabel{
+      font-weight: 1000;
+      color: #d91515;
+      font-size: 15px;
+      letter-spacing: .6px;
+    }
+    .hotlineNo{
+      margin-top: 4px;
+      font-weight: 1000;
+      color: #d91515;
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+
+    /* payment box */
+    .payBox{
+      margin-top: 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.26);
+      border: 1px solid rgba(0,0,0,.18);
+      padding: 14px;
+      position: relative;
+    }
+
+    .payBoxTitle{
+      text-align:center;
+      font-weight: 900;
+      color: #111;
+      margin-bottom: 12px;
+    }
+
+    .payMethods{
+      display: grid;
+      gap: 10px;
+    }
+
+    .payMethod{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      background: rgba(255,255,255,.40);
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .payIcon{
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(0,0,0,.16);
+      flex: 0 0 auto;
+    }
+    .payIcon svg{ width: 34px; height: 34px; }
+
+    .payIcon.gcash{ background: linear-gradient(180deg, #2c6bff, #1e4cff); }
+    .payIcon.maya{  background: linear-gradient(180deg, #23c55e, #12a64a); }
+    .payIcon.bank{  background: linear-gradient(180deg, #d62323, #b31212); }
+
+    .payInfoText{ line-height: 1.1; }
+    .payName{
+      font-weight: 1000;
+      color: #101010;
+      font-size: 14px;
+    }
+    .payDetails{
+      color: rgba(0,0,0,.78);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+    .payDetails.strong{
+      font-weight: 1000;
+      font-size: 14px;
+      color: #0a0a0a;
+      letter-spacing: .4px;
+    }
+
+    .miniNote{
+      margin-top: 10px;
+      text-align:center;
+      color: rgba(0,0,0,.75);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* BOTTOM */
+    .posterBottom{
+      background: #6b19ff;
+      color: rgba(255,255,255,.92);
+      padding: 10px 14px;
+      text-align:center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* responsive */
+    @media (min-width: 900px){
+      .poster{ width: min(820px, 92vw); }
+      .posterMid{ padding: 18px; }
+    }
+    @media (max-width: 520px){
+      .bigTitle{ font-size: 26px; }
+      .bigMsg{ font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGO SPLASH ONLY -->
+  <div class="logoSplash" id="logoSplash">
+    <img src="log1.png" alt="Logo">
+  </div>
+
+  <!-- REMINDER POSTER (NO MODAL) -->
+  <div class="poster" id="poster">
+
+    <!-- TOP (BLACK) -->
+    <div class="posterTop">
+      <div class="brandRow">
+        <img class="brandLogo" src="log1.png" alt="Company Logo">
+        <div class="brandMeta">
+          <div class="brandName">JLC TECH NETWORK & DATA SOLUTION</div>
+          <div class="brandSub">Billing & Payment Portal</div>
+        </div>
+      </div>
+
+      <div class="bigTitle">PAYMENT REMINDER</div>
+
+    <div class="bigMsg">
+    Dear <b>Valued Subscriber</b>,<br>
+    This is a reminder regarding your <b>outstanding balance</b>.<br>
+    Please settle your payment by <b>tomorrow</b> to avoid service disconnection.
+    </div>
+
+    </div>
+
+    <!-- MIDDLE (YELLOW) -->
+    <div class="posterMid">
+      <div class="midText">
+    Thank you for your continued support.<br>
+    If you have already made your payment, please disregard this notice.<br>
+    For any concerns or clarifications, feel free to contact our support team.
+    </div>
+
+
+      <!-- HOTLINE -->
+      <div class="hotlineBox">
+        <div class="hotlineLabel">CUSTOMER SERVICE HOTLINE</div>
+        <div class="hotlineNo">0993-940-0552</div>
+      </div>
+
+      <!-- PAYMENT BOX -->
+      <div class="payBox">
+        <div class="payBoxTitle">You may pay us via <b>ONLINE</b></div>
+
+        <div class="payMethods">
+
+          <!-- GCash -->
+          <div class="payMethod">
+            <div class="payIcon gcash" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="28" fill="rgba(255,255,255,.18)"/>
+                <path d="M38 20c-10 0-18 8-18 18s8 18 18 18c6 0 11-3 14-7"
+                      stroke="white" stroke-width="4" stroke-linecap="round"/>
+                <path d="M46 36h-12" stroke="white" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="payInfoText">
+              <div class="payName">GCash</div>
+              <div class="payDetails">JE..... M.</div>
+              <div class="payDetails strong">0993-940-0552</div>
+            </div>
+          </div>
+
+          <!-- Maya -->
+          <div class="payMethod">
+            <div class="payIcon maya" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none">
+                <rect x="10" y="14" width="44" height="36" rx="10" fill="rgba(255,255,255,.18)"/>
+                <path d="M22 38l6-12 6 12 6-12 6 12"
+                      stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="payInfoText">
+              <div class="payName">Maya</div>
+              <div class="payDetails">JE..... M.</div>
+              <div class="payDetails strong">0993-940-0552</div>
+            </div>
+          </div>
+
+        <div class="miniNote">
+          After payment, please send your reference number to our support for verification.
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM (PURPLE) -->
+    <div class="posterBottom">
+      <div>Powered by: <b>JLC TECH NETWORK & DATA SOLUTION</b></div>
+    </div>
+
+  </div>
+
+  <script>
+    // Splash duration (ms)
+    const SPLASH_MS = 1200;
+
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("logoSplash");
+      const poster = document.getElementById("poster");
+
+      poster.classList.add("show");
+
+      setTimeout(() => {
+        splash.classList.add("hide");
+      }, SPLASH_MS);
+    });
+  </script>
+
+</body>
+</html>
